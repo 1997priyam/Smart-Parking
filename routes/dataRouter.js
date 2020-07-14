@@ -1,18 +1,30 @@
 var express = require('express');
 var router = express.Router();
-const { pool } = require('../config');
-/* GET home page. */
-router.post('/', function(req, res) {
+const db = require('../models');
+const { response } = require('../app');
+const data = db.data;
+const Op = db.Sequelize.Op;
+
+router.post('/', async function(req, res) {
     let { sensor_uuid, timestamp, status } = req.body;
-    console.log(sensor_uuid, timestamp, status);
     if (sensor_uuid === undefined || timestamp === undefined || status === undefined) return res.status(400).json({error: 'Invalid Params'});
     if (typeof status !== "boolean") return res.status(400).json({error: 'Expecting Boolean type in status field.'});
 
-    query = `INSERT INTO data VALUES ('${sensor_uuid}', '${timestamp}', ${status})`;
-    pool.query(query, (err, results) => {
-        if (err) return res.json({error: true});
-        return res.status(200).json({result: 'OK'});
-    })
+    let dataObj = {
+        sensor_uuid,
+        timestamp,
+        status,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
+    try {
+        let response = await data.create(dataObj);
+        return res.json(response);
+    } catch(e) {
+        console.log(e);
+        return res.status(500).json({error: true});
+    }
+
 });
 
 module.exports = router;

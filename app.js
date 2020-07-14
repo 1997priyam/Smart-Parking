@@ -21,6 +21,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const db = require("./models");
+db.sequelize.sync();
+
 app.use('/', indexRouter);
 app.use('/lot', lotRouter);
 app.use('/bay', bayRouter);

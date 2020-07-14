@@ -1,35 +1,44 @@
 var express = require('express');
 var router = express.Router();
-const { pool } = require('../config');
+
+const db = require('../models');
+const parkinglots = db.parkinglots;
+const bays = db.bays;
+const Op = db.Sequelize.Op;
 /* GET home page. */
-router.get('/', function(req, res) {
-    query = 'SELECT * from ParkingLots';
-    pool.query(query, (err, results) => {
-        if (err) return res.status(500).json({error: true});
-        return res.status(200).json(results.rows);
-    })
+router.get('/', async function(req, res) {
+    try{
+        let result = await parkinglots.findAll();
+        return res.status(200).json(result);
+    } catch (e) {
+        return res.status(500).json({error: true});
+    }
 });
 
-router.get('/:lot_name', function(req, res) {
+router.get('/:lot_name', async function(req, res) {
     let { lot_name } = req.params;
-    let parkingLotInfo;
-    let query = `SELECT * from ParkingLots where lotname='${lot_name}'`;
+    let parkingLotInfo = {};
+    let condition = lot_name ? { lotname: lot_name }  : null;
     
-    pool.query(query, (err, results) => {
-        if (err) return res.status(500).json({error: true});
-        if(results.rowCount > 1) return res.status(500).json({error: 'Duplicate parking lots found!!'});
-        else if(results.rowCount === 0) return res.status(400).json({error: `Parking lot with name ${lot_name} not found !`});
-        parkingLotInfo = results.rows[0];
+    try{
+        let results = await parkinglots.findAll({where: condition});
+        if(results.length > 1) return res.status(500).json({error: 'Duplicate parking lots found!!'});
+        else if(results.length === 0) return res.status(400).json({error: `Parking lot with name ${lot_name} not found !`});
+        parkingLotInfo = {...results[0]};
+    } catch (e) {
+        return res.status(500).json({error: true});
+    }
 
-        let queryInner = `SELECT * from Bays where lotname='${lot_name}'`;
-        pool.query(queryInner, (err, results) => {
-            if (err) return res.status(500).json({error: true});
-            parkingLotInfo.bays = results.rows;
-            return res.status(200).json(parkingLotInfo);
-            })
-        });
 
-    
+    try {
+        let condition = lot_name ? { lotname: lot_name }  : null;
+        let results = await bays.findAll({where: condition});
+        console.log(results);
+        parkingLotInfo['bays'] = results;
+        return res.status(200).json(parkingLotInfo);
+    } catch (e) {
+        return res.status(500).json({error: true});
+    }   
 });
 
 module.exports = router;
