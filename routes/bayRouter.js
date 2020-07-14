@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 const db = require('../models');
 const bays = db.bays;
-const Op = db.Sequelize.Op;
-/* GET home page. */
+
 router.get('/:lot_name/:bay_name', async function(req, res) {
     let { lot_name, bay_name } = req.params;
     if(lot_name == undefined || bay_name == undefined) return res.status(400).json({error: 'Invalid Params'});
@@ -15,6 +14,7 @@ router.get('/:lot_name/:bay_name', async function(req, res) {
         if(results.length > 1) return res.json({error: 'Duplicate records found'});
         return res.status(200).json(results[0]);
     } catch(e) {
+        console.log(e);
         return res.json({error: true});
     }
 });

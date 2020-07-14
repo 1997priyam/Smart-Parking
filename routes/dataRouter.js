@@ -3,7 +3,6 @@ var router = express.Router();
 const db = require('../models');
 const { response } = require('../app');
 const data = db.data;
-const Op = db.Sequelize.Op;
 
 router.post('/', async function(req, res) {
     let { sensor_uuid, timestamp, status } = req.body;

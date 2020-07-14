@@ -4,8 +4,7 @@ var router = express.Router();
 const db = require('../models');
 const parkinglots = db.parkinglots;
 const bays = db.bays;
-const Op = db.Sequelize.Op;
-/* GET home page. */
+
 router.get('/', async function(req, res) {
     try{
         let result = await parkinglots.findAll();
@@ -26,6 +25,7 @@ router.get('/:lot_name', async function(req, res) {
         else if(results.length === 0) return res.status(400).json({error: `Parking lot with name ${lot_name} not found !`});
         parkingLotInfo = {...results[0]};
     } catch (e) {
+        console.log(e);
         return res.status(500).json({error: true});
     }
 
@@ -37,6 +37,7 @@ router.get('/:lot_name', async function(req, res) {
         parkingLotInfo['bays'] = results;
         return res.status(200).json(parkingLotInfo);
     } catch (e) {
+        console.log(e);
         return res.status(500).json({error: true});
     }   
 });
