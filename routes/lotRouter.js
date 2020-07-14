@@ -5,10 +5,7 @@ const { pool } = require('../config');
 router.get('/', function(req, res) {
     query = 'SELECT * from ParkingLots';
     pool.query(query, (err, results) => {
-        if (err) {
-            return res.status(500).json({error: true});
-        }
-        console.log(results);
+        if (err) return res.status(500).json({error: true});
         return res.status(200).json(results.rows);
     })
 });
@@ -17,6 +14,7 @@ router.get('/:lot_name', function(req, res) {
     let { lot_name } = req.params;
     let parkingLotInfo;
     let query = `SELECT * from ParkingLots where lotname='${lot_name}'`;
+    
     pool.query(query, (err, results) => {
         if (err) return res.status(500).json({error: true});
         if(results.rowCount > 1) return res.status(500).json({error: 'Duplicate parking lots found!!'});
