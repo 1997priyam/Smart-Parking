@@ -13,4 +13,17 @@ router.get('/', function(req, res) {
     })
 });
 
+router.get('/:lot_name', function(req, res) {
+    let { lot_name } = req.params
+    console.log(lot_name);
+    query = `SELECT * from ParkingLots where lotname='${lot_name}'`;
+    pool.query(query, (err, results) => {
+        if (err) {
+            res.status(500).json({error: true});
+        }
+        console.log(results);
+        res.status(200).json(results.rows);
+    })
+});
+
 module.exports = router;
